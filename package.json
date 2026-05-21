@@ -43,5 +43,9 @@
 	},
 	"keywords": [
 		"svelte"
-	]
+	],
+	"dependencies": {
+		"svelte-hermes": "file:../testlib/svelte-hermes-0.0.3.tgz",
+		"sveltebuilder-coreui": "file:../testlib/sveltebuilder-coreui-0.0.1.tgz"
+	}
 }
