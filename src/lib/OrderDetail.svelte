@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { Order, OrderItem, OrderEvent } from '$lib/type/commerce.js';
+	import type { Order, OrderItem, OrderEvent, OrderStatus } from '$lib/type/commerce.js';
+	import { Badge, Skeleton } from 'sveltebuilder-coreui';
 	import { localText } from 'svelte-hermes';
 	import PriceDisplay from './PriceDisplay.svelte';
 
@@ -30,23 +31,21 @@
 		return localText('name', undefined, 'product', item.productId);
 	}
 
-	const statusBadgeClass: Record<string, string> = {
-		pending:    'order-detail__status--pending',
-		confirmed:  'order-detail__status--confirmed',
-		processing: 'order-detail__status--processing',
-		shipped:    'order-detail__status--shipped',
-		delivered:  'order-detail__status--delivered',
-		cancelled:  'order-detail__status--cancelled',
-		refunded:   'order-detail__status--refunded',
-	};
+	function statusVariant(status: OrderStatus): 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'secondary' {
+		if (status === 'delivered') return 'success';
+		if (status === 'processing') return 'warning';
+		if (status === 'cancelled' || status === 'refunded') return 'danger';
+		if (status === 'confirmed' || status === 'shipped') return 'primary';
+		return 'secondary';
+	}
 </script>
 
 <div class="order-detail">
 	{#if loading}
 		<div class="order-detail__loading" aria-busy="true" aria-label={localText('commerce_loading')}>
-			<div class="order-detail__skeleton order-detail__skeleton--header"></div>
-			<div class="order-detail__skeleton order-detail__skeleton--section"></div>
-			<div class="order-detail__skeleton order-detail__skeleton--section"></div>
+			<Skeleton height="3.5rem" rounded="sm" />
+			<Skeleton height="8rem" rounded="sm" />
+			<Skeleton height="8rem" rounded="sm" />
 		</div>
 	{:else}
 		<!-- Header -->
@@ -60,9 +59,9 @@
 				</time>
 			</div>
 			<div class="order-detail__header-right">
-				<span class="order-detail__status-badge {statusBadgeClass[order.status] ?? ''}">
+				<Badge variant={statusVariant(order.status)} size="lg">
 					{localText(`commerce_order_status_${order.status}`)}
-				</span>
+				</Badge>
 				<span class="order-detail__fulfillment-text order-detail__fulfillment-text--{order.fulfillmentStatus}">
 					{localText(`commerce_fulfillment_status_${order.fulfillmentStatus}`)}
 				</span>
@@ -165,21 +164,6 @@
 		gap: 1rem;
 	}
 
-	.order-detail__skeleton {
-		background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-		background-size: 200% 100%;
-		border-radius: var(--radius-sm, 0.25rem);
-		animation: shimmer 1.4s infinite;
-	}
-
-	.order-detail__skeleton--header { height: 3.5rem; }
-	.order-detail__skeleton--section { height: 8rem; }
-
-	@keyframes shimmer {
-		0%   { background-position: 200% 0; }
-		100% { background-position: -200% 0; }
-	}
-
 	.order-detail__header {
 		display: flex;
 		align-items: flex-start;
@@ -211,22 +195,6 @@
 		font-size: 0.8125rem;
 		color: var(--color-muted, #6b7280);
 	}
-
-	.order-detail__status-badge {
-		display: inline-flex;
-		padding: 0.25rem 0.625rem;
-		border-radius: 999px;
-		font-size: 0.8125rem;
-		font-weight: 500;
-	}
-
-	.order-detail__status--pending    { background: #f9fafb; color: #6b7280; }
-	.order-detail__status--confirmed  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-	.order-detail__status--processing { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
-	.order-detail__status--shipped    { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
-	.order-detail__status--delivered  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-	.order-detail__status--cancelled  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-	.order-detail__status--refunded   { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
 
 	.order-detail__fulfillment-text {
 		font-size: 0.8125rem;

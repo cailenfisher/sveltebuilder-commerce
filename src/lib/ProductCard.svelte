@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Product } from '$lib/type/commerce.js';
+	import { Badge } from 'sveltebuilder-coreui';
 	import { localText } from 'svelte-hermes';
 	import PriceDisplay from './PriceDisplay.svelte';
 	import StockBadge from './StockBadge.svelte';
@@ -47,15 +48,15 @@
 		{/if}
 
 		{#if product.featured}
-			<span class="product-card__badge product-card__badge--featured" aria-label={localText('commerce_featured_label')}>
+			<Badge variant="primary" size="sm" class="product-card__badge" aria-label={localText('commerce_featured_label')}>
 				{localText('commerce_featured_label')}
-			</span>
+			</Badge>
 		{/if}
 
 		{#if !product.published}
-			<span class="product-card__badge product-card__badge--draft">
+			<Badge variant="secondary" size="sm" class="product-card__badge">
 				{localText('commerce_draft_label')}
-			</span>
+			</Badge>
 		{/if}
 	</div>
 
@@ -116,27 +117,12 @@
 		height: 100%;
 	}
 
-	.product-card__badge {
+	:global(.product-card__badge) {
 		position: absolute;
 		top: 0.5rem;
 		left: 0.5rem;
-		padding: 0.125rem 0.5rem;
-		border-radius: 999px;
-		font-size: 0.6875rem;
-		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
-	}
-
-	.product-card__badge--featured {
-		background: var(--color-primary, #2563eb);
-		color: #fff;
-	}
-
-	.product-card__badge--draft {
-		background: var(--color-neutral-subtle, #f3f4f6);
-		color: var(--color-neutral, #6b7280);
-		border: 1px solid var(--color-border, #e5e7eb);
 	}
 
 	.product-card__body {

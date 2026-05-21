@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { StockAdjustment, PageInfo } from '$lib/type/commerce.js';
+	import { Skeleton } from 'sveltebuilder-coreui';
 	import { localText } from 'svelte-hermes';
 	import Pagination from './internal/Pagination.svelte';
 
@@ -26,7 +27,7 @@
 	{#if loading}
 		<div class="stock-audit-log__loading" aria-busy="true" aria-label={localText('commerce_loading')}>
 			{#each { length: 5 } as _, i (i)}
-				<div class="stock-audit-log__skeleton" aria-hidden="true"></div>
+				<Skeleton height="2.5rem" rounded="sm" />
 			{/each}
 		</div>
 	{:else if adjustments.length === 0}
@@ -87,19 +88,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.375rem;
-	}
-
-	.stock-audit-log__skeleton {
-		height: 2.5rem;
-		border-radius: var(--radius-sm, 0.25rem);
-		background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-		background-size: 200% 100%;
-		animation: shimmer 1.4s infinite;
-	}
-
-	@keyframes shimmer {
-		0%   { background-position: 200% 0; }
-		100% { background-position: -200% 0; }
 	}
 
 	.stock-audit-log__empty {

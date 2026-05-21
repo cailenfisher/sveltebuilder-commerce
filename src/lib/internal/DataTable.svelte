@@ -1,6 +1,7 @@
 <script lang="ts" generics="T extends { id: number }">
 	import type { Snippet } from 'svelte';
 	import type { PageInfo, SortState } from '$lib/type/commerce.js';
+	import { Skeleton } from 'sveltebuilder-coreui';
 	import Pagination from './Pagination.svelte';
 
 	type Column = {
@@ -118,9 +119,9 @@
 				{#if loading}
 					{#each { length: 5 } as _, i (i)}
 						<tr class="data-table-row data-table-row--skeleton" aria-hidden="true">
-							{#if selectable}<td class="data-table-td"><span class="skeleton skeleton--check"></span></td>{/if}
+							{#if selectable}<td class="data-table-td"><Skeleton width="1rem" height="1rem" rounded="sm" /></td>{/if}
 							{#each columns as col (col.key)}
-								<td class="data-table-td"><span class="skeleton skeleton--cell"></span></td>
+								<td class="data-table-td"><Skeleton width="80%" height="1rem" rounded="sm" /></td>
 							{/each}
 						</tr>
 					{/each}
@@ -282,26 +283,4 @@
 		font-size: 0.875rem;
 	}
 
-	.skeleton {
-		display: block;
-		border-radius: var(--radius-sm, 0.25rem);
-		background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-		background-size: 200% 100%;
-		animation: shimmer 1.4s infinite;
-	}
-
-	.skeleton--check {
-		width: 1rem;
-		height: 1rem;
-	}
-
-	.skeleton--cell {
-		width: 80%;
-		height: 1rem;
-	}
-
-	@keyframes shimmer {
-		0% { background-position: 200% 0; }
-		100% { background-position: -200% 0; }
-	}
 </style>

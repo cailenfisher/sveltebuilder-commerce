@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Order, OrderStatus, PageInfo, SortState } from '$lib/type/commerce.js';
+	import { Badge, Button } from 'sveltebuilder-coreui';
 	import { localText } from 'svelte-hermes';
 	import DataTable from './internal/DataTable.svelte';
 	import PriceDisplay from './PriceDisplay.svelte';
@@ -46,18 +47,16 @@
 		{ key: 'actions', label: '', sortable: false },
 	];
 
-	const statusBadgeClass: Record<OrderStatus, string> = {
-		pending:    'order-list__badge--pending',
-		confirmed:  'order-list__badge--confirmed',
-		processing: 'order-list__badge--processing',
-		shipped:    'order-list__badge--shipped',
-		delivered:  'order-list__badge--delivered',
-		cancelled:  'order-list__badge--cancelled',
-		refunded:   'order-list__badge--refunded',
-	};
-
 	function formatDate(iso: string): string {
 		return new Date(iso).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
+	}
+
+	function statusVariant(status: OrderStatus): 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'secondary' {
+		if (status === 'delivered') return 'success';
+		if (status === 'processing') return 'warning';
+		if (status === 'cancelled' || status === 'refunded') return 'danger';
+		if (status === 'confirmed' || status === 'shipped') return 'primary';
+		return 'secondary';
 	}
 </script>
 
@@ -65,14 +64,16 @@
 	<!-- Status filter tabs -->
 	<div class="order-list__status-filter" role="group" aria-label={localText('commerce_filter_by_status')}>
 		{#each statuses as status (status ?? '__all')}
-			<button
+			<Button
 				type="button"
-				class="order-list__filter-btn {statusFilter === status ? 'order-list__filter-btn--active' : ''}"
+				variant={statusFilter === status ? 'primary' : 'outline'}
+				size="sm"
+				class="order-list__filter-btn"
 				onclick={() => onstatusfilter?.(status)}
 				aria-pressed={statusFilter === status}
 			>
 				{status === null ? localText('commerce_all_orders') : localText(`commerce_order_status_${status}`)}
-			</button>
+			</Button>
 		{/each}
 	</div>
 
@@ -100,7 +101,7 @@
 				{#if order.guestEmail}
 					<span class="order-list__guest">
 						{order.guestEmail}
-						<span class="order-list__guest-tag">{localText('commerce_guest')}</span>
+						<Badge variant="secondary" size="sm">{localText('commerce_guest')}</Badge>
 					</span>
 				{:else if order.customerId}
 					<span class="order-list__customer-id">#{order.customerId}</span>
@@ -109,9 +110,9 @@
 				{/if}
 			</td>
 			<td class="data-table-td">
-				<span class="order-list__badge {statusBadgeClass[order.status]}">
+				<Badge variant={statusVariant(order.status)} size="md">
 					{localText(`commerce_order_status_${order.status}`)}
-				</span>
+				</Badge>
 			</td>
 			<td class="data-table-td">
 				<span class="order-list__fulfillment-text order-list__fulfillment-text--{order.fulfillmentStatus}">
@@ -123,13 +124,13 @@
 			</td>
 			<td class="data-table-td order-list__actions-cell">
 				<div class="order-list__actions">
-					<button type="button" class="order-list__action-btn" onclick={() => onview(order)}>
+					<Button type="button" variant="ghost" size="xs" onclick={() => onview(order)}>
 						{localText('commerce_view_order')}
-					</button>
+					</Button>
 					{#if onfulfill && (order.fulfillmentStatus === 'unfulfilled' || order.fulfillmentStatus === 'partial')}
-						<button type="button" class="order-list__action-btn order-list__action-btn--primary" onclick={() => onfulfill?.(order)}>
+						<Button type="button" variant="ghost" size="xs" class="order-list__action-btn--primary" onclick={() => onfulfill?.(order)}>
 							{localText('commerce_fulfill_order')}
-						</button>
+						</Button>
 					{/if}
 				</div>
 			</td>
@@ -162,30 +163,7 @@
 
 	.order-list__filter-btn {
 		white-space: nowrap;
-		padding: 0.375rem 0.75rem;
-		border: 1px solid var(--color-border, #e5e7eb);
 		border-radius: 999px;
-		background: var(--color-surface, #fff);
-		color: var(--color-text-secondary, #374151);
-		font-size: 0.8125rem;
-		cursor: pointer;
-		transition: background 0.12s, border-color 0.12s;
-	}
-
-	.order-list__filter-btn:hover:not(.order-list__filter-btn--active) {
-		background: var(--color-surface-hover, #f9fafb);
-	}
-
-	.order-list__filter-btn--active {
-		background: var(--color-primary, #2563eb);
-		border-color: var(--color-primary, #2563eb);
-		color: #fff;
-		font-weight: 500;
-	}
-
-	.order-list__filter-btn:focus-visible {
-		outline: 2px solid var(--color-focus, #3b82f6);
-		outline-offset: 2px;
 	}
 
 	.order-list__id {
@@ -226,35 +204,10 @@
 		font-size: 0.875rem;
 	}
 
-	.order-list__guest-tag {
-		font-size: 0.6875rem;
-		padding: 0.0625rem 0.375rem;
-		border-radius: 999px;
-		background: var(--color-neutral-subtle, #f3f4f6);
-		color: var(--color-neutral, #6b7280);
-	}
-
 	.order-list__customer-id {
 		font-size: 0.875rem;
 		color: var(--color-text, #374151);
 	}
-
-	.order-list__badge {
-		display: inline-flex;
-		padding: 0.125rem 0.5rem;
-		border-radius: 999px;
-		font-size: 0.75rem;
-		font-weight: 500;
-		white-space: nowrap;
-	}
-
-	.order-list__badge--pending    { background: #f9fafb; color: #6b7280; }
-	.order-list__badge--confirmed  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-	.order-list__badge--processing { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
-	.order-list__badge--shipped    { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
-	.order-list__badge--delivered  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-	.order-list__badge--cancelled  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-	.order-list__badge--refunded   { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
 
 	.order-list__fulfillment-text {
 		font-size: 0.8125rem;
@@ -275,29 +228,8 @@
 		gap: 0.5rem;
 	}
 
-	.order-list__action-btn {
-		background: none;
-		border: none;
-		padding: 0;
-		font-size: 0.8125rem;
-		color: var(--color-primary, #2563eb);
-		cursor: pointer;
-		text-decoration: underline;
-		text-underline-offset: 2px;
-	}
-
-	.order-list__action-btn:hover {
-		color: var(--color-primary-hover, #1d4ed8);
-	}
-
 	.order-list__action-btn--primary {
 		color: var(--color-success, #166534);
-	}
-
-	.order-list__action-btn:focus-visible {
-		outline: 2px solid var(--color-focus, #3b82f6);
-		outline-offset: 2px;
-		border-radius: 2px;
 	}
 
 	.order-list__empty {

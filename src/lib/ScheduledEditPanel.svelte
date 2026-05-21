@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ScheduledEdit } from '$lib/type/commerce.js';
+	import { Badge, Button, Skeleton } from 'sveltebuilder-coreui';
 	import { localText } from 'svelte-hermes';
 
 	let {
@@ -32,7 +33,7 @@
 	{#if loading}
 		<div class="scheduled-edit-panel__loading" aria-busy="true" aria-label={localText('commerce_loading')}>
 			{#each { length: 3 } as _, i (i)}
-				<div class="scheduled-edit-panel__skeleton" aria-hidden="true"></div>
+				<Skeleton height="3.5rem" rounded="sm" />
 			{/each}
 		</div>
 	{:else if scheduled.length === 0}
@@ -65,13 +66,15 @@
 								</span>
 							</div>
 							{#if oncancel}
-								<button
+								<Button
 									type="button"
+									variant="outline"
+									size="xs"
 									class="scheduled-edit-panel__cancel-btn"
 									onclick={() => oncancel?.(edit.id)}
 								>
 									{localText('commerce_cancel_edit')}
-								</button>
+								</Button>
 							{/if}
 						</li>
 					{/each}
@@ -96,7 +99,7 @@
 									{localText('commerce_applied_at')}: <time datetime={edit.scheduledAt}>{formatDate(edit.scheduledAt)}</time>
 								</span>
 							</div>
-							<span class="scheduled-edit-panel__applied-badge">{localText('commerce_applied')}</span>
+							<Badge variant="success" size="sm">{localText('commerce_applied')}</Badge>
 						</li>
 					{/each}
 				</ul>
@@ -129,19 +132,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.375rem;
-	}
-
-	.scheduled-edit-panel__skeleton {
-		height: 3.5rem;
-		border-radius: var(--radius-sm, 0.25rem);
-		background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-		background-size: 200% 100%;
-		animation: shimmer 1.4s infinite;
-	}
-
-	@keyframes shimmer {
-		0%   { background-position: 200% 0; }
-		100% { background-position: -200% 0; }
 	}
 
 	.scheduled-edit-panel__empty {
@@ -218,40 +208,10 @@
 		color: var(--color-muted, #9ca3af);
 	}
 
-	.scheduled-edit-panel__cancel-btn {
+	:global(.scheduled-edit-panel__cancel-btn) {
 		height: 1.75rem;
-		padding: 0 0.625rem;
-		background: none;
-		border: 1px solid var(--color-danger, #dc2626);
 		color: var(--color-danger, #dc2626);
-		border-radius: var(--radius-sm, 0.25rem);
-		font-size: 0.75rem;
-		cursor: pointer;
 		white-space: nowrap;
-		flex-shrink: 0;
-		transition: background 0.1s;
-	}
-
-	.scheduled-edit-panel__cancel-btn:hover {
-		background: var(--color-danger-subtle, #fef2f2);
-	}
-
-	.scheduled-edit-panel__cancel-btn:focus-visible {
-		outline: 2px solid var(--color-focus, #3b82f6);
-		outline-offset: 2px;
-	}
-
-	.scheduled-edit-panel__applied-badge {
-		display: inline-flex;
-		height: 1.5rem;
-		align-items: center;
-		padding: 0 0.5rem;
-		background: var(--color-success-subtle, #f0fdf4);
-		color: var(--color-success, #166534);
-		border: 1px solid var(--color-success-border, #bbf7d0);
-		border-radius: 999px;
-		font-size: 0.6875rem;
-		font-weight: 500;
 		flex-shrink: 0;
 	}
 </style>

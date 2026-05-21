@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Product, PageInfo } from '$lib/type/commerce.js';
+	import { Skeleton } from 'sveltebuilder-coreui';
 	import { localText } from 'svelte-hermes';
 	import ProductCard from './ProductCard.svelte';
 	import Pagination from './internal/Pagination.svelte';
@@ -28,9 +29,9 @@
 		<div class="product-grid" aria-busy="true" aria-label={localText('commerce_loading')}>
 			{#each { length: 6 } as _, i (i)}
 				<div class="product-grid__skeleton" aria-hidden="true">
-					<div class="skeleton skeleton--image"></div>
-					<div class="skeleton skeleton--title"></div>
-					<div class="skeleton skeleton--subtitle"></div>
+					<Skeleton class="skeleton--image" height="auto" rounded={false} />
+					<Skeleton class="skeleton--title" height="1rem" />
+					<Skeleton class="skeleton--subtitle" height="0.875rem" />
 				</div>
 			{/each}
 		</div>
@@ -93,32 +94,21 @@
 		color: var(--color-muted, #9ca3af);
 	}
 
-	.skeleton {
-		border-radius: var(--radius-sm, 0.25rem);
-		background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-		background-size: 200% 100%;
-		animation: shimmer 1.4s infinite;
-	}
-
-	.skeleton--image {
+	:global(.skeleton--image) {
 		aspect-ratio: 4/3;
 		border-radius: 0;
 	}
 
-	.skeleton--title {
+	:global(.skeleton--title) {
 		height: 1rem;
 		width: 75%;
 		margin: 0 0.875rem;
 	}
 
-	.skeleton--subtitle {
+	:global(.skeleton--subtitle) {
 		height: 0.875rem;
 		width: 55%;
 		margin: 0 0.875rem;
 	}
 
-	@keyframes shimmer {
-		0%   { background-position: 200% 0; }
-		100% { background-position: -200% 0; }
-	}
 </style>

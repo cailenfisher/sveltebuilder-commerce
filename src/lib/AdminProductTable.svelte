@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Product, ProductCategory, PageInfo, SortState } from '$lib/type/commerce.js';
+	import { Badge, Button } from 'sveltebuilder-coreui';
 	import { localText } from 'svelte-hermes';
 	import DataTable from './internal/DataTable.svelte';
 	import PriceDisplay from './PriceDisplay.svelte';
@@ -114,40 +115,44 @@
 		</td>
 		<td class="data-table-td">
 			{#if product.published}
-				<span class="admin-product-table__badge admin-product-table__badge--live">
+				<Badge variant="success" size="md">
 					{localText('commerce_published_yes')}
-				</span>
+				</Badge>
 			{:else}
-				<span class="admin-product-table__badge admin-product-table__badge--draft">
+				<Badge variant="secondary" size="md">
 					{localText('commerce_published_no')}
-				</span>
+				</Badge>
 			{/if}
 		</td>
 		<td class="data-table-td admin-product-table__actions-cell">
 			<div class="admin-product-table__actions">
-				<button
+				<Button
 					type="button"
-					class="admin-product-table__action-btn"
+					variant="ghost"
+					size="xs"
 					onclick={() => onedit(product)}
 				>
 					{localText('commerce_admin_edit')}
-				</button>
+				</Button>
 				{#if onduplicate}
-					<button
+					<Button
 						type="button"
-						class="admin-product-table__action-btn"
+						variant="ghost"
+						size="xs"
 						onclick={() => onduplicate?.(product)}
 					>
 						{localText('commerce_admin_duplicate')}
-					</button>
+					</Button>
 				{/if}
-				<button
+				<Button
 					type="button"
-					class="admin-product-table__action-btn admin-product-table__action-btn--danger"
+					variant="ghost"
+					size="xs"
+					class="admin-product-table__action-btn--danger"
 					onclick={() => ondelete(product)}
 				>
 					{localText('commerce_admin_delete')}
-				</button>
+				</Button>
 			</div>
 		</td>
 	{/snippet}
@@ -223,26 +228,6 @@
 		font-size: 0.875rem;
 	}
 
-	.admin-product-table__badge {
-		display: inline-flex;
-		align-items: center;
-		padding: 0.125rem 0.5rem;
-		border-radius: 999px;
-		font-size: 0.75rem;
-		font-weight: 500;
-	}
-
-	.admin-product-table__badge--live {
-		background: var(--color-success-subtle, #f0fdf4);
-		color: var(--color-success, #166534);
-		border: 1px solid var(--color-success-border, #bbf7d0);
-	}
-
-	.admin-product-table__badge--draft {
-		background: var(--color-neutral-subtle, #f3f4f6);
-		color: var(--color-neutral, #6b7280);
-	}
-
 	.admin-product-table__actions-cell {
 		text-align: right;
 	}
@@ -254,33 +239,8 @@
 		gap: 0.5rem;
 	}
 
-	.admin-product-table__action-btn {
-		background: none;
-		border: none;
-		padding: 0;
-		font-size: 0.8125rem;
-		color: var(--color-primary, #2563eb);
-		cursor: pointer;
-		text-decoration: underline;
-		text-underline-offset: 2px;
-	}
-
-	.admin-product-table__action-btn:hover {
-		color: var(--color-primary-hover, #1d4ed8);
-	}
-
-	.admin-product-table__action-btn--danger {
+	:global(.admin-product-table__action-btn--danger) {
 		color: var(--color-danger, #dc2626);
-	}
-
-	.admin-product-table__action-btn--danger:hover {
-		color: var(--color-danger-hover, #b91c1c);
-	}
-
-	.admin-product-table__action-btn:focus-visible {
-		outline: 2px solid var(--color-focus, #3b82f6);
-		outline-offset: 2px;
-		border-radius: 2px;
 	}
 
 	.admin-product-table__empty {

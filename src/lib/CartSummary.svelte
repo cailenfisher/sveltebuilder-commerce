@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { CartItem, Money } from '$lib/type/commerce.js';
+	import { Button, IconButton, Skeleton } from 'sveltebuilder-coreui';
 	import { localText } from 'svelte-hermes';
 	import PriceDisplay from './PriceDisplay.svelte';
 
@@ -46,7 +47,7 @@
 	{#if loading}
 		<div class="cart-summary__loading" aria-busy="true" aria-label={localText('commerce_loading')}>
 			{#each { length: 3 } as _, i (i)}
-				<div class="cart-summary__skeleton" aria-hidden="true"></div>
+				<Skeleton height="4rem" rounded="sm" />
 			{/each}
 		</div>
 	{:else if items.length === 0}
@@ -81,8 +82,10 @@
 					</div>
 
 					<div class="cart-summary__item-qty">
-						<button
+						<IconButton
 							type="button"
+							variant="ghost"
+							size="xs"
 							class="cart-summary__qty-btn"
 							onclick={() => {
 								if (item.quantity <= 1) {
@@ -92,24 +95,28 @@
 								}
 							}}
 							aria-label={localText('commerce_decrease_quantity')}
-						>−</button>
+						>−</IconButton>
 						<span class="cart-summary__qty-value" aria-label={localText('commerce_quantity_n', { n: item.quantity })}>
 							{item.quantity}
 						</span>
-						<button
+						<IconButton
 							type="button"
+							variant="ghost"
+							size="xs"
 							class="cart-summary__qty-btn"
 							onclick={() => onquantitychange(item.productId, item.variantId, item.quantity + 1)}
 							aria-label={localText('commerce_increase_quantity')}
-						>+</button>
+						>+</IconButton>
 					</div>
 
 					<div class="cart-summary__item-total">
 						<PriceDisplay price={lineTotal(item)} {locale} size="sm" />
 					</div>
 
-					<button
+					<IconButton
 						type="button"
+						variant="ghost"
+						size="xs"
 						class="cart-summary__remove-btn"
 						onclick={() => onremove(item.productId, item.variantId)}
 						aria-label={localText('commerce_remove_item', { name: itemName(item) })}
@@ -117,7 +124,7 @@
 						<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
 							<path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
 						</svg>
-					</button>
+					</IconButton>
 				</li>
 			{/each}
 		</ul>
@@ -150,13 +157,15 @@
 			</div>
 		</div>
 
-		<button
+		<Button
 			type="button"
+			variant="primary"
+			size="lg"
 			class="cart-summary__checkout-btn"
 			onclick={oncheckout}
 		>
 			{localText('commerce_proceed_to_checkout')}
-		</button>
+		</Button>
 	{/if}
 </div>
 
@@ -171,19 +180,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
-	}
-
-	.cart-summary__skeleton {
-		height: 4rem;
-		border-radius: var(--radius-sm, 0.25rem);
-		background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-		background-size: 200% 100%;
-		animation: shimmer 1.4s infinite;
-	}
-
-	@keyframes shimmer {
-		0%   { background-position: 200% 0; }
-		100% { background-position: -200% 0; }
 	}
 
 	.cart-summary__empty {
@@ -267,27 +263,9 @@
 		overflow: hidden;
 	}
 
-	.cart-summary__qty-btn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
+	:global(.cart-summary__qty-btn) {
 		width: 1.75rem;
 		height: 1.75rem;
-		background: var(--color-surface-subtle, #f9fafb);
-		border: none;
-		font-size: 0.875rem;
-		cursor: pointer;
-		color: var(--color-text, #374151);
-		transition: background 0.1s;
-	}
-
-	.cart-summary__qty-btn:hover {
-		background: var(--color-surface-hover, #f3f4f6);
-	}
-
-	.cart-summary__qty-btn:focus-visible {
-		outline: 2px solid var(--color-focus, #3b82f6);
-		outline-offset: -2px;
 	}
 
 	.cart-summary__qty-value {
@@ -307,28 +285,15 @@
 		text-align: right;
 	}
 
-	.cart-summary__remove-btn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
+	:global(.cart-summary__remove-btn) {
 		width: 1.75rem;
 		height: 1.75rem;
-		border: none;
-		background: none;
 		color: var(--color-muted, #9ca3af);
-		cursor: pointer;
-		border-radius: var(--radius-sm, 0.25rem);
-		transition: color 0.1s, background 0.1s;
 	}
 
-	.cart-summary__remove-btn:hover {
+	:global(.cart-summary__remove-btn:hover) {
 		color: var(--color-danger, #dc2626);
 		background: var(--color-danger-subtle, #fef2f2);
-	}
-
-	.cart-summary__remove-btn:focus-visible {
-		outline: 2px solid var(--color-focus, #3b82f6);
-		outline-offset: 1px;
 	}
 
 	.cart-summary__totals {
@@ -362,25 +327,7 @@
 		font-style: italic;
 	}
 
-	.cart-summary__checkout-btn {
+	:global(.cart-summary__checkout-btn) {
 		width: 100%;
-		height: 2.75rem;
-		background: var(--color-primary, #2563eb);
-		color: #fff;
-		border: none;
-		border-radius: var(--radius-sm, 0.25rem);
-		font-size: 1rem;
-		font-weight: 600;
-		cursor: pointer;
-		transition: background 0.12s;
-	}
-
-	.cart-summary__checkout-btn:hover {
-		background: var(--color-primary-hover, #1d4ed8);
-	}
-
-	.cart-summary__checkout-btn:focus-visible {
-		outline: 2px solid var(--color-focus, #3b82f6);
-		outline-offset: 2px;
 	}
 </style>

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { Order, OrderItem, Return, PageInfo } from '$lib/type/commerce.js';
+	import type { Order, OrderItem, Return, PageInfo, OrderStatus } from '$lib/type/commerce.js';
+	import { Badge, Button, Skeleton } from 'sveltebuilder-coreui';
 	import { localText } from 'svelte-hermes';
 	import PriceDisplay from './PriceDisplay.svelte';
 	import Pagination from './internal/Pagination.svelte';
@@ -29,6 +30,14 @@
 			year: 'numeric', month: 'long', day: 'numeric',
 		});
 	}
+
+	function statusVariant(status: OrderStatus): 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'secondary' {
+		if (status === 'delivered') return 'success';
+		if (status === 'processing') return 'warning';
+		if (status === 'cancelled' || status === 'refunded') return 'danger';
+		if (status === 'confirmed' || status === 'shipped') return 'primary';
+		return 'secondary';
+	}
 </script>
 
 <div class="customer-order-history">
@@ -37,7 +46,7 @@
 	{#if loading}
 		<div class="customer-order-history__loading" aria-busy="true" aria-label={localText('commerce_loading')}>
 			{#each { length: 3 } as _, i (i)}
-				<div class="customer-order-history__skeleton" aria-hidden="true"></div>
+				<Skeleton height="5.5rem" rounded="sm" />
 			{/each}
 		</div>
 	{:else if orders.length === 0}
@@ -56,13 +65,15 @@
 					<!-- Order header — tracking status is primary/first -->
 					<div class="customer-order-history__order-header">
 						<div class="customer-order-history__order-id-group">
-							<button
+							<Button
 								type="button"
+								variant="ghost"
+								size="sm"
 								class="customer-order-history__order-link"
 								onclick={() => onvieworder(order)}
 							>
 								{localText('commerce_order_number', { id: order.id })}
-							</button>
+							</Button>
 							<time class="customer-order-history__date" datetime={order.createdAt}>
 								{formatDate(order.createdAt)}
 							</time>
@@ -78,37 +89,40 @@
 					</div>
 
 					<div class="customer-order-history__order-meta">
-						<span class="customer-order-history__status-badge customer-order-history__status-badge--{order.status}">
+						<Badge variant={statusVariant(order.status)} size="md">
 							{localText(`commerce_order_status_${order.status}`)}
-						</span>
+						</Badge>
 						<PriceDisplay price={order.total} {locale} size="sm" />
 					</div>
 
 					<div class="customer-order-history__order-actions">
-						<button
+						<Button
 							type="button"
-							class="customer-order-history__action-btn customer-order-history__action-btn--primary"
+							variant="primary"
+							size="sm"
 							onclick={() => onvieworder(order)}
 						>
 							{localText('commerce_view_order')}
-						</button>
+						</Button>
 						{#if onreorder && order.status === 'delivered'}
-							<button
+							<Button
 								type="button"
-								class="customer-order-history__action-btn"
+								variant="outline"
+								size="sm"
 								onclick={() => onreorder?.(order)}
 							>
 								{localText('commerce_reorder')}
-							</button>
+							</Button>
 						{/if}
 						{#if oninitatereturn && order.status === 'delivered'}
-							<button
+							<Button
 								type="button"
-								class="customer-order-history__action-btn"
+								variant="outline"
+								size="sm"
 								onclick={() => oninitatereturn?.(order)}
 							>
 								{localText('commerce_return_items')}
-							</button>
+							</Button>
 						{/if}
 					</div>
 				</li>
@@ -139,19 +153,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
-	}
-
-	.customer-order-history__skeleton {
-		height: 5.5rem;
-		border-radius: var(--radius-sm, 0.25rem);
-		background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-		background-size: 200% 100%;
-		animation: shimmer 1.4s infinite;
-	}
-
-	@keyframes shimmer {
-		0%   { background-position: 200% 0; }
-		100% { background-position: -200% 0; }
 	}
 
 	.customer-order-history__empty {
@@ -204,27 +205,18 @@
 		gap: 0.125rem;
 	}
 
-	.customer-order-history__order-link {
-		background: none;
-		border: none;
+	:global(.customer-order-history__order-link) {
 		padding: 0;
 		font-size: 0.9375rem;
 		font-weight: 600;
 		color: var(--color-primary, #2563eb);
-		cursor: pointer;
 		text-decoration: underline;
 		text-underline-offset: 2px;
 		text-align: left;
 	}
 
-	.customer-order-history__order-link:hover {
+	:global(.customer-order-history__order-link:hover) {
 		color: var(--color-primary-hover, #1d4ed8);
-	}
-
-	.customer-order-history__order-link:focus-visible {
-		outline: 2px solid var(--color-focus, #3b82f6);
-		outline-offset: 2px;
-		border-radius: 2px;
 	}
 
 	.customer-order-history__date {
@@ -248,60 +240,10 @@
 		gap: 0.75rem;
 	}
 
-	.customer-order-history__status-badge {
-		display: inline-flex;
-		padding: 0.125rem 0.5rem;
-		border-radius: 999px;
-		font-size: 0.75rem;
-		font-weight: 500;
-	}
-
-	.customer-order-history__status-badge--pending    { background: #f9fafb; color: #6b7280; }
-	.customer-order-history__status-badge--confirmed  { background: #eff6ff; color: #1d4ed8; }
-	.customer-order-history__status-badge--processing { background: #fffbeb; color: #92400e; }
-	.customer-order-history__status-badge--shipped    { background: #f0f9ff; color: #0369a1; }
-	.customer-order-history__status-badge--delivered  { background: #f0fdf4; color: #166534; }
-	.customer-order-history__status-badge--cancelled  { background: #fef2f2; color: #dc2626; }
-	.customer-order-history__status-badge--refunded   { background: #f5f3ff; color: #6d28d9; }
-
 	.customer-order-history__order-actions {
 		display: flex;
 		gap: 0.625rem;
 		flex-wrap: wrap;
 	}
 
-	.customer-order-history__action-btn {
-		height: 2rem;
-		padding: 0 0.875rem;
-		border-radius: var(--radius-sm, 0.25rem);
-		font-size: 0.8125rem;
-		cursor: pointer;
-		transition: background 0.1s;
-	}
-
-	.customer-order-history__action-btn {
-		background: var(--color-surface, #fff);
-		border: 1px solid var(--color-border, #d1d5db);
-		color: var(--color-text, #374151);
-	}
-
-	.customer-order-history__action-btn:hover {
-		background: var(--color-surface-hover, #f9fafb);
-	}
-
-	.customer-order-history__action-btn--primary {
-		background: var(--color-primary-subtle, #eff6ff);
-		border-color: var(--color-primary-border, #bfdbfe);
-		color: var(--color-primary, #1d4ed8);
-		font-weight: 500;
-	}
-
-	.customer-order-history__action-btn--primary:hover {
-		background: #dbeafe;
-	}
-
-	.customer-order-history__action-btn:focus-visible {
-		outline: 2px solid var(--color-focus, #3b82f6);
-		outline-offset: 2px;
-	}
 </style>

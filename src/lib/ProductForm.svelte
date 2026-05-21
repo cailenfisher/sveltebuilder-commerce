@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Product, ProductCategory, ProductVariant, Money } from '$lib/type/commerce.js';
+	import { Button, IconButton, Textarea } from 'sveltebuilder-coreui';
 	import { localText } from 'svelte-hermes';
 	import { untrack } from 'svelte';
 
@@ -245,26 +246,32 @@
 						<img src={url} alt="" class="product-form__media-thumb" loading="lazy" decoding="async" />
 						<span class="product-form__media-url" title={url}>{url}</span>
 						<div class="product-form__media-controls">
-							<button
+							<IconButton
 								type="button"
+								variant="outline"
+								size="xs"
 								class="product-form__icon-btn"
 								onclick={() => moveMediaUrl(i, i - 1)}
 								disabled={i === 0}
 								aria-label={localText('commerce_move_image_up')}
-							>↑</button>
-							<button
+							>↑</IconButton>
+							<IconButton
 								type="button"
+								variant="outline"
+								size="xs"
 								class="product-form__icon-btn"
 								onclick={() => moveMediaUrl(i, i + 1)}
 								disabled={i === mediaUrls.length - 1}
 								aria-label={localText('commerce_move_image_down')}
-							>↓</button>
-							<button
+							>↓</IconButton>
+							<IconButton
 								type="button"
+								variant="outline"
+								size="xs"
 								class="product-form__icon-btn product-form__icon-btn--danger"
 								onclick={() => removeMediaUrl(url)}
 								aria-label={localText('commerce_remove_image')}
-							>×</button>
+							>×</IconButton>
 						</div>
 					</li>
 				{/each}
@@ -280,13 +287,14 @@
 				aria-label={localText('commerce_media_url_label')}
 				onkeydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMediaUrl(); } }}
 			/>
-			<button
+			<Button
 				type="button"
-				class="product-form__btn product-form__btn--secondary"
+				variant="outline"
+				size="md"
 				onclick={addMediaUrl}
 			>
 				{localText('commerce_add_image')}
-			</button>
+			</Button>
 		</div>
 	</fieldset>
 
@@ -312,25 +320,25 @@
 			<label class="product-form__label" for="pf-seo-desc">
 				{localText('commerce_seo_description_label')}
 			</label>
-			<textarea
+			<Textarea
 				id="pf-seo-desc"
 				bind:value={seoDescription}
-				maxlength="160"
-				rows="3"
+				maxlength={160}
+				rows={3}
 				class="product-form__textarea"
-			></textarea>
+			/>
 			<p class="product-form__char-count">{seoDescription.length}/160</p>
 		</div>
 	</fieldset>
 
 	<!-- Actions -->
 	<div class="product-form__actions">
-		<button type="button" class="product-form__btn product-form__btn--secondary" onclick={oncancel}>
+		<Button type="button" variant="outline" size="md" onclick={oncancel}>
 			{localText('commerce_admin_cancel')}
-		</button>
-		<button type="submit" class="product-form__btn product-form__btn--primary">
+		</Button>
+		<Button type="submit" variant="primary" size="md">
 			{localText('commerce_admin_save')}
-		</button>
+		</Button>
 	</div>
 </form>
 
@@ -459,7 +467,7 @@
 		box-shadow: 0 0 0 3px var(--color-primary-subtle, #eff6ff);
 	}
 
-	.product-form__textarea {
+	:global(.product-form__textarea) {
 		padding: 0.5rem 0.625rem;
 		border: 1px solid var(--color-border, #d1d5db);
 		border-radius: var(--radius-sm, 0.25rem);
@@ -473,7 +481,7 @@
 		transition: border-color 0.1s, box-shadow 0.1s;
 	}
 
-	.product-form__textarea:focus {
+	:global(.product-form__textarea:focus) {
 		outline: none;
 		border-color: var(--color-primary, #2563eb);
 		box-shadow: 0 0 0 3px var(--color-primary-subtle, #eff6ff);
@@ -569,37 +577,13 @@
 		gap: 0.5rem;
 	}
 
-	.product-form__icon-btn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
+	:global(.product-form__icon-btn) {
 		width: 1.75rem;
 		height: 1.75rem;
-		border: 1px solid var(--color-border, #e5e7eb);
-		border-radius: var(--radius-sm, 0.25rem);
-		background: var(--color-surface, #fff);
-		font-size: 0.875rem;
-		cursor: pointer;
-		color: var(--color-text, #374151);
-		transition: background 0.1s;
 	}
 
-	.product-form__icon-btn:disabled {
-		opacity: 0.3;
-		cursor: default;
-	}
-
-	.product-form__icon-btn--danger {
+	:global(.product-form__icon-btn--danger) {
 		color: var(--color-danger, #dc2626);
-	}
-
-	.product-form__icon-btn--danger:hover {
-		background: var(--color-danger-subtle, #fef2f2);
-	}
-
-	.product-form__icon-btn:focus-visible {
-		outline: 2px solid var(--color-focus, #3b82f6);
-		outline-offset: 1px;
 	}
 
 	.product-form__actions {
@@ -609,42 +593,4 @@
 		padding-top: 1.25rem;
 	}
 
-	.product-form__btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		height: 2.25rem;
-		padding: 0 1rem;
-		border-radius: var(--radius-sm, 0.25rem);
-		font-size: 0.875rem;
-		font-weight: 500;
-		cursor: pointer;
-		transition: background 0.12s, border-color 0.12s;
-	}
-
-	.product-form__btn--primary {
-		background: var(--color-primary, #2563eb);
-		border: 1px solid var(--color-primary, #2563eb);
-		color: #fff;
-	}
-
-	.product-form__btn--primary:hover {
-		background: var(--color-primary-hover, #1d4ed8);
-		border-color: var(--color-primary-hover, #1d4ed8);
-	}
-
-	.product-form__btn--secondary {
-		background: var(--color-surface, #fff);
-		border: 1px solid var(--color-border, #d1d5db);
-		color: var(--color-text, #374151);
-	}
-
-	.product-form__btn--secondary:hover {
-		background: var(--color-surface-hover, #f9fafb);
-	}
-
-	.product-form__btn:focus-visible {
-		outline: 2px solid var(--color-focus, #3b82f6);
-		outline-offset: 2px;
-	}
 </style>

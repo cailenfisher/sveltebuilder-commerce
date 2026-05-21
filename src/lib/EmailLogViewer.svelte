@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { EmailLog, PageInfo } from '$lib/type/commerce.js';
+	import { Badge, Button, Skeleton } from 'sveltebuilder-coreui';
 	import { localText } from 'svelte-hermes';
 	import Pagination from './internal/Pagination.svelte';
 
@@ -26,12 +27,12 @@
 		});
 	}
 
-	const statusBadgeClass: Record<string, string> = {
-		queued:  'email-log-viewer__badge--queued',
-		sent:    'email-log-viewer__badge--sent',
-		failed:  'email-log-viewer__badge--failed',
-		bounced: 'email-log-viewer__badge--bounced',
-	};
+	function statusVariant(status: string): 'secondary' | 'success' | 'warning' | 'danger' {
+		if (status === 'sent') return 'success';
+		if (status === 'failed') return 'danger';
+		if (status === 'bounced') return 'warning';
+		return 'secondary';
+	}
 </script>
 
 <div class="email-log-viewer">
@@ -43,7 +44,7 @@
 	{#if loading}
 		<div class="email-log-viewer__loading" aria-busy="true" aria-label={localText('commerce_loading')}>
 			{#each { length: 5 } as _, i (i)}
-				<div class="email-log-viewer__skeleton" aria-hidden="true"></div>
+				<Skeleton height="2.5rem" rounded="sm" />
 			{/each}
 		</div>
 	{:else if logs.length === 0}
@@ -67,9 +68,9 @@
 					{#each logs as log (log.id)}
 						<tr class="email-log-viewer__row">
 							<td class="email-log-viewer__td">
-								<span class="email-log-viewer__badge {statusBadgeClass[log.status] ?? ''}">
+								<Badge variant={statusVariant(log.status)} size="md">
 									{localText(`commerce_email_status_${log.status}`)}
-								</span>
+								</Badge>
 							</td>
 							<td class="email-log-viewer__td email-log-viewer__td--mono">
 								{log.templateSlug}
@@ -93,13 +94,14 @@
 							</td>
 							<td class="email-log-viewer__td email-log-viewer__td--actions">
 								{#if onresend && (log.status === 'failed' || log.status === 'bounced')}
-									<button
+									<Button
 										type="button"
-										class="email-log-viewer__resend-btn"
+										variant="ghost"
+										size="xs"
 										onclick={() => onresend?.(log.id)}
 									>
 										{localText('commerce_resend_email')}
-									</button>
+									</Button>
 								{/if}
 							</td>
 						</tr>
@@ -144,19 +146,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.375rem;
-	}
-
-	.email-log-viewer__skeleton {
-		height: 2.5rem;
-		border-radius: var(--radius-sm, 0.25rem);
-		background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-		background-size: 200% 100%;
-		animation: shimmer 1.4s infinite;
-	}
-
-	@keyframes shimmer {
-		0%   { background-position: 200% 0; }
-		100% { background-position: -200% 0; }
 	}
 
 	.email-log-viewer__empty {
@@ -223,38 +212,4 @@
 		text-align: right;
 	}
 
-	.email-log-viewer__badge {
-		display: inline-flex;
-		padding: 0.125rem 0.5rem;
-		border-radius: 999px;
-		font-size: 0.75rem;
-		font-weight: 500;
-		white-space: nowrap;
-	}
-
-	.email-log-viewer__badge--queued  { background: #f9fafb; color: #6b7280; }
-	.email-log-viewer__badge--sent    { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-	.email-log-viewer__badge--failed  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-	.email-log-viewer__badge--bounced { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
-
-	.email-log-viewer__resend-btn {
-		background: none;
-		border: none;
-		padding: 0;
-		font-size: 0.8125rem;
-		color: var(--color-primary, #2563eb);
-		cursor: pointer;
-		text-decoration: underline;
-		text-underline-offset: 2px;
-	}
-
-	.email-log-viewer__resend-btn:hover {
-		color: var(--color-primary-hover, #1d4ed8);
-	}
-
-	.email-log-viewer__resend-btn:focus-visible {
-		outline: 2px solid var(--color-focus, #3b82f6);
-		outline-offset: 2px;
-		border-radius: 2px;
-	}
 </style>
